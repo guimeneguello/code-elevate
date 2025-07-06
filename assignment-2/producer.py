@@ -1,26 +1,27 @@
-###Producer Kafka para simular sensores IoT enviando dados.
-from faker import Faker
 from kafka import KafkaProducer
+from faker import Faker
 import json
 import time
 import random
 
-fake = Faker() # criando instância do Faker
+fake = Faker()
 producer = KafkaProducer(
-    bootstrap_servers=['localhost:9092'],
-    value_serializer=lambda v: json.dumps(v).encode('utf-8') # serializa os dados em json e encode utf-8
+    bootstrap_servers=['kafka:9092'],
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-topic = 'iot-sensors'
-
-while True: # o loop infinito serve para simular um envio contínuo
-    data = {
+def generate_sensor_data():
+    return {
         'sensor_id': fake.uuid4(),
-        'timestamp': fake.iso8601(), #formato ISO 8601
+        'timestamp': fake.iso8601(),
         'temperature': round(random.uniform(15, 35), 2),
         'humidity': round(random.uniform(30, 90), 2),
-        'location': fake.city()
+        'status': random.choice(['OK', 'FAIL', 'WARN'])
     }
-    producer.send(topic, value=data) #envia os dados para o tópico kafka
-    print(f"Enviado: {data}") # exibe no console
-    time.sleep(1)
+
+if __name__ == '__main__':
+    while True:
+        data = generate_sensor_data()
+        producer.send('iot_sensors', value=data)
+        print(f"Sent: {data}")
+        time.sleep(1)

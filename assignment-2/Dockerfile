@@ -1,14 +1,5 @@
-# Dockerfile for assignment-2 (producer and consumer)
-FROM python:3.8-slim
-
+FROM python:3.11-slim
 WORKDIR /app
-
-COPY requirements.txt ./
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-RUN chmod +x wait-for-kafka.sh
-
-# Default command (override in docker-compose)
-CMD ["python", "producer.py"]
+COPY producer.py consumer.py ./

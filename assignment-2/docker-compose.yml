@@ -1,62 +1,46 @@
 version: '3.8'
-
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    image: bitnami/zookeeper:latest
     ports:
       - "2181:2181"
-
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
   kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    depends_on:
-      - zookeeper
+    image: bitnami/kafka:latest
     ports:
       - "9092:9092"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: iotdb
+      MYSQL_USER: iotuser
+      MYSQL_PASSWORD: iotpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
   producer:
     build: .
-    container_name: iot-producer
     depends_on:
       - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    command: ["sh", "wait-for-kafka.sh", "kafka", "python", "producer.py"]
+      - db
+    command: ["python", "producer.py"]
     volumes:
-      - ./iot_data.db:/app/iot_data.db
-
+      - .:/app
   consumer:
     build: .
-    container_name: iot-consumer
     depends_on:
       - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    command: ["sh", "wait-for-kafka.sh", "kafka", "python", "consumer.py"]
+      - db
+    command: ["python", "consumer.py"]
     volumes:
-      - ./iot_data.db:/app/iot_data.db
-
-  simple-producer:
-    image: confluentinc/cp-kafka:7.5.0
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    command: ["sh", "-c", "echo 'Hello, Kafka' | kafka-console-producer --broker-list kafka:9092 --topic test-topic"]
-
-  simple-consumer:
-    image: confluentinc/cp-kafka:7.5.0
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    command: ["sh", "-c", "kafka-console-consumer --bootstrap-server kafka:9092 --topic test-topic --from-beginning"]
+      - .:/app
