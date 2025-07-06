@@ -77,16 +77,40 @@ python -m code_elevate_app.main info_transportes.csv
 Python 3.8+
 PySpark
 
-## Testes
-Os testes unitários estão localizados na pasta `tests/`.
+## Como Executar os Testes
 
-Para executar todos os testes, utilize o comando abaixo no terminal, dentro da pasta `assignment-1`:
+Você pode rodar os testes unitários de duas formas:
+
+### 1. Usando Docker (recomendado)
+
+1. Certifique-se de que a imagem já foi construída:
+
+```bash
+docker-compose build
+```
+
+2. Execute os testes dentro do container:
+
+```bash
+docker-compose run script python -m unittest discover -s tests
+
+```
+
+### 2. Localmente (fora do Docker)
+
+1. Instale as dependências do projeto:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Execute os testes:
 
 ```bash
 python -m unittest discover -s tests
 ```
 
-Certifique-se de que as dependências estejam instaladas e que o PySpark esteja configurado corretamente no ambiente.
+Os testes estão localizados na pasta `tests/` e cobrem as principais funcionalidades das camadas bronze, silver e gold.
 
 ## Observações
 As tabelas intermediárias e finais são salvas na pasta `table_destinations/`.

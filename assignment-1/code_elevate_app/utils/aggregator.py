@@ -21,7 +21,7 @@ class Aggregator():
         
     def aggregations(self, df_silver):
         try:
-            logging.info("Lendo parquet da tabela silver")
+            logging.info("Realizando agregações no dataframe gold.")
 
             info_corridas_do_dia = df_silver.groupBy("DT_REFE").agg(
                 f.count('*').alias('QT_CORR'),

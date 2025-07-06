@@ -8,7 +8,7 @@ class TestTransformer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.spark = SparkSession.builder.master("local[1]").appName("test").getOrCreate()
-        cls.transformer = Transformer(cls.spark, cls.logger)
+        cls.transformer = Transformer(cls.spark)
 
     @classmethod
     def tearDownClass(cls):
@@ -25,8 +25,17 @@ class TestTransformer(unittest.TestCase):
         self.assertEqual(row.PROPOSITO, "Viagem")
 
     def test_transform_handles_nulls(self): #testa se a transformação lida com valores nulos
+        from pyspark.sql.types import StructType, StructField, StringType
         data = [Row(CATEGORIA=None, LOCAL_INICIO=None, LOCAL_FIM=None, PROPOSITO=None, DATA_INICIO="01-01-2020 8:00", DISTANCIA=None)]
-        df = self.spark.createDataFrame(data)
+        schema = StructType([
+            StructField("CATEGORIA", StringType(), True),
+            StructField("LOCAL_INICIO", StringType(), True),
+            StructField("LOCAL_FIM", StringType(), True),
+            StructField("PROPOSITO", StringType(), True),
+            StructField("DATA_INICIO", StringType(), True),
+            StructField("DISTANCIA", StringType(), True),
+        ])
+        df = self.spark.createDataFrame(data, schema=schema)
         df_transformed = self.transformer.transform(df)
         row = df_transformed.first()
         self.assertEqual(row.CATEGORIA, "Nao-consta")

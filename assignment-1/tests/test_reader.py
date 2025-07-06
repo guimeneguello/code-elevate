@@ -12,7 +12,7 @@ class TestReader(unittest.TestCase):
         with open(cls.test_csv, "w", encoding="utf-8") as f:
             f.write("CATEGORIA;LOCAL_INICIO;LOCAL_FIM;PROPOSITO;DATA_INICIO;DISTANCIA\n")
             f.write("Ônibus;São Paulo;João Pessoa;Viágem;01-01-2020 8:00;10\n")
-        cls.reader = Reader(cls.spark, cls.test_csv, cls.logger)
+        cls.reader = Reader(cls.spark, cls.test_csv)
 
     @classmethod #apaga os arquivos criados após os testes
     def tearDownClass(cls):
@@ -35,7 +35,7 @@ class TestReader(unittest.TestCase):
 
     def test_bronze_persister(self): # Verifica se o arquivo parquet foi criado
         df = self.reader.csv_reader()
-        self.reader.bronze_persister(df, "test_bronze.parquet")
+        self.reader.write_bronze(df, "test_bronze.parquet")
         self.assertTrue(os.path.exists("test_bronze.parquet"))
 
 if __name__ == "__main__":

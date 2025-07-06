@@ -7,7 +7,7 @@ class TestAggregator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.spark = SparkSession.builder.master("local[1]").appName("test-aggregator").getOrCreate()
-        cls.aggregator = Aggregator(cls.spark, cls.logger)
+        cls.aggregator = Aggregator(cls.spark)
         # Cria um DataFrame de teste para silver
         cls.test_silver = "test_silver.parquet"
         data = [
