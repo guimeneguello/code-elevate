@@ -35,9 +35,9 @@ class Transformer():
             df_silver = df.withColumn(
                 'DT_REFE', f.date_format(f.to_timestamp(f.col('DATA_INICIO'), 'MM-dd-yyyy H:mm'), 'yyyy-MM-dd')) \
                 .withColumn('DISTANCIA', f.when((f.col('DISTANCIA') <= 0) | f.col('DISTANCIA').isNull(), 'Nao-consta').otherwise(f.col('DISTANCIA'))) \
-                .fillna(value='Nao-consta', subset=['CATEGORIA', 'LOCAL-INICIO', 'LOCAL-FIM', 'PROPOSITO'])
+                .fillna(value='Nao-consta', subset=['CATEGORIA', 'LOCAL_INICIO', 'LOCAL_FIM', 'PROPOSITO'])
 
-            for col in ['CATEGORIA', 'LOCAL-INICIO', 'LOCAL-FIM', 'PROPOSITO']:
+            for col in ['CATEGORIA', 'LOCAL_INICIO', 'LOCAL_FIM', 'PROPOSITO']:
                 df_silver = df_silver.withColumn(col, remover_acentos(f.col(col)))
 
             #df_silver.show()

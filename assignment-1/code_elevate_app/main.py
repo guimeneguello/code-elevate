@@ -5,6 +5,7 @@ import logging
 from code_elevate_app.utils.reader import Reader
 from code_elevate_app.utils.processing import Transformer
 from code_elevate_app.utils.aggregator import Aggregator
+import os
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,9 +15,9 @@ logging.basicConfig(
 
 
 class Motor:
-    BRONZE_PATH = "table_destinations/info_transportes.parquet"
-    SILVER_PATH = "table_destinations/info_transportes_silver.parquet"
-    GOLD_PATH = "table_destinations/info_corridas_do_dia.parquet"
+    BRONZE_PATH = os.path.join("table_destinations", "info_transportes.parquet")
+    SILVER_PATH = os.path.join("table_destinations", "info_transportes_silver.parquet")
+    GOLD_PATH = os.path.join("table_destinations", "info_corridas_do_dia.parquet")
 
     def __init__(self, csv_path, spark):
         self.csv_path = csv_path
@@ -51,12 +52,7 @@ class Motor:
             raise e
         
 def main(csv_path):
-    import os
-
-    os.environ['HADOOP_HOME'] = 'C:\\hadoop'
-    os.environ['PATH'] += os.pathsep + 'C:\\hadoop\\bin'
-
-    spark = SparkSession.builder.appName("assignment1").config("spark.hadoop.hadoop.native.lib", "false").getOrCreate()
+    spark = SparkSession.builder.appName("assignment1").getOrCreate()
     motor = Motor(csv_path=csv_path, spark=spark)
     motor.executor()
     spark.stop()
